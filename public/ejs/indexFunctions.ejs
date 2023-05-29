@@ -1,0 +1,221 @@
+<script>
+    function openLink(endpoint) {
+        window.location.href = endpoint;
+    }
+
+    function openPopup() {
+        document.getElementById("popup").classList.remove("hidden");
+    }
+
+    // Schließen des Popups
+    function closePopup() {
+        document.getElementById("popup").classList.add("hidden");
+    }
+
+    window.onload = function() {
+        // Hamburger menu
+        const mobileMenuButton = document.querySelector('.inline-flex');
+        const mobileMenu = document.getElementById('menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('open');
+            const expanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
+            mobileMenuButton.setAttribute('aria-expanded', !expanded);
+        });
+
+        // Menu links
+        const menuLinks = document.querySelectorAll('.flex.space-x-4 a');
+
+        menuLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                menuLinks.forEach(otherLink => {
+                    otherLink.classList.remove('bg-gray-900', 'text-white');
+                });
+                e.currentTarget.classList.add('bg-gray-900', 'text-white');
+            });
+        });
+    }
+
+    $(document).ready(function() {
+        $('#player-table').DataTable({
+            responsive: true,
+            "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Alle"]],
+            "language": {
+                "lengthMenu": "Zeige _MENU_ Einträge pro Seite",
+                "zeroRecords": "Keine Einträge gefunden",
+                "info": "Seite _PAGE_ von _PAGES_",
+                "infoEmpty": "Keine Einträge verfügbar",
+                "infoFiltered": "(gefiltert aus _MAX_ totalen Einträgen)",
+                "search": "Suche:",
+                "paginate": {
+                    "first": "Erste",
+                    "last": "Letzte",
+                    "next": "Nächste",
+                    "previous": "Vorherige"
+                }
+            }
+        });
+
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var chartData = {
+            labels: [
+                <% playerCountData.slice().reverse().forEach(function(row) { %>
+                '<%= new Date(row.created_at).toLocaleString() %>',
+                <% }) %>
+            ],
+            datasets: [{
+                label: 'Player Count',
+                data: [
+                    <% playerCountData.forEach(function(row) { %>
+                    <%= row.num_players %>,
+                    <% }) %>
+                ],
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        };
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Playercount'
+                    },
+                },
+                interaction: {
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Date and Time'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Players'
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: <%= listNumPlayers %>
+                    }
+                }
+            }
+        });
+    });
+
+
+    async function resetScore(){
+        const swalResult = await Swal.fire({
+            title: 'Willst du wirklich deinen Score resetten?',
+            showDenyButton: true,
+            showCancelButton: false,
+            confirmButtonText: 'Ja',
+            denyButtonText: `Nein`,
+        });
+
+        if (swalResult.isConfirmed) {
+            const swalLoading = Swal.fire({
+                title: 'Bitte warten...',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
+            try {
+                const response = await fetch('/reset/score/<%= steamID %>', {
+                    method: 'POST',
+                });
+
+                if (response.ok) {
+                    swalLoading.close();
+                    await Swal.fire('Score erfolgreich resetted!', '', 'success').then(() => {
+                        location.reload()
+                    });
+                }else if (response.status === 429) {
+                    swalLoading.close();
+                    await Swal.fire('Du kannst nur alle <%= process.env.RESET_COOLDOWN %> Stunden deinen Score resetten.', '', 'error');
+                }else if (response.status === 404) {
+                    swalLoading.close();
+                    await Swal.fire('Du hast noch nicht auf unserem Server gespielt!', '', 'error');
+                }else {
+                    throw new Error('Unerwartete Antwort vom Server.');
+                }
+            } catch (error) {
+                swalLoading.close();
+                console.error(error);
+                await Swal.fire('Es ist ein Fehler aufgetreten!', '', 'error');
+            }
+        } else if (swalResult.isDenied) {
+            await Swal.fire('Changes are not saved', '', 'info');
+        }
+    }
+
+
+    // Funktion, die eine Ladeanimation anzeigt, während ein API-Aufruf durchgeführt wird
+    async function fetchScore() {
+        // Zeigt die Ladeanimation an
+        Swal.fire({
+            title: "Bitte warten...",
+            text: "Daten werden geladen...",
+            didOpen: () => {
+                Swal.showLoading();
+            },
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+        });
+
+        try {
+            const response = await fetch("push/score/<%= steamID %>", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            // Schließt die Ladeanimation
+            Swal.close();
+
+            if (response.status === 200) {
+                // Zeigt eine Erfolgsmeldung mit einem grünen Haken an
+                Swal.fire("Du hast deinen Score erfolgreich gepusht!", "", "success").then(() => {
+                    location.reload();
+                });
+            } else if (response.status === 429) {
+                // Zeigt eine Fehlermeldung mit einem roten X an
+                Swal.fire("Fehler", "Du hast bereits gepusht! Bitte warte 24 Stunden.", "error")
+            }else if (response.status === 404) {
+                // Zeigt eine Fehlermeldung mit einem roten X an
+                Swal.fire("Fehler", "Du hast noch nie auf unserem Server gespielt! Bitte spiele zuerst.", "error")
+            }else if (response.status === 403) {
+                // Zeigt eine Fehlermeldung mit einem roten X an
+                Swal.fire("Fehler", "Funktion deaktiviert.", "error")
+            } else {
+                // Zeigt eine Fehlermeldung für andere HTTP-Statuscodes an
+                Swal.fire("Fehler", "Beim Laden der Daten ist ein Fehler aufgetreten.", "error").then(() => {
+                    location.reload()
+                });
+            }
+        } catch (error) {
+            // Schließt die Ladeanimation und zeigt eine Fehlermeldung an
+            Swal.close();
+            Swal.fire("Fehler", "Beim Laden der Daten ist ein Fehler aufgetreten.", "error");
+        }
+    }
+
+
+
+</script>

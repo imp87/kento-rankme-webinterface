@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rankme | <%= process.env.GAMESERVER_NAME %></title>
+    <link rel="stylesheet" href="./styles/styles.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.11/css/responsive.bootstrap4.min.css" />
+    <script src="https://cdn.datatables.net/responsive/2.2.11/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.11/js/responsive.bootstrap4.min.js"></script>
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+
+</head>
+<body class="bg-gray-100 h-screen flex flex-col justify-center items-center">
+<div class="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
+    <h1 class="text-3xl text-center font-semibold mb-8">Welcome Back!</h1>
+    <form class="flex flex-col gap-4">
+        <button id="steamBtn" type="button" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-lg transition-colors duration-300">Sign in with Steam <i class="lni lni-steam"></i></button>
+    </form>
+    <div class="text-sm mt-4 text-center">
+        Don't have an account? <a href="#" class="text-blue-500 font-semibold hover:underline">Create one now</a>.
+    </div>
+</div>
+<script>
+    const steamBtn = document.getElementById('steamBtn');
+
+    steamBtn.addEventListener('click', () => {
+        window.location.href = "https://zm1.imp87.xyz/auth/steam";
+    });
+</script>
+</body>
+</html>

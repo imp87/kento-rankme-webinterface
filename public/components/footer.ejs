@@ -1,0 +1,19 @@
+<footer class="bg-gray-800 text-gray-300 py-2 text-center">
+    <p class="text-white text-sm font-medium">&copy; 2023 <%= process.env.COMMUNITY_NAME %> </p>
+    <p class="text-white text-sm font-medium">Programmed with <span style="color: red;" class="mdi mdi-heart"></span> by Steven Dautrich</p>
+    <div class="flex flex-col items-center justify-center">
+        <div id="donate-button"></div>
+        <script src="https://www.paypalobjects.com/donate/sdk/donate-sdk.js" charset="UTF-8"></script>
+        <script>
+            PayPal.Donation.Button({
+                env:'production',
+                hosted_button_id:'WBZ8N4RSW2N6W',
+                image: {
+                    src:'https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif',
+                    alt:'Donate with PayPal button',
+                    title:'Thanks for your support!',
+                }
+            }).render('#donate-button');
+        </script>
+    </div>
+</footer>

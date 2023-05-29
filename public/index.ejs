@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | <%= process.env.COMMUNITY_NAME %></title>
+    <link rel="stylesheet" href="./styles/styles.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap4.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="./styles/dashboard.css">
+    <link rel="icon" type="image/x-icon" href="<%= process.env.FAVICON %>">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.umd.js" integrity="sha512-CMF3tQtjOoOJoOKlsS7/2loJlkyctwzSoDK/S40iAB+MqWSaf50uObGQSk5Ny/gfRhRCjNLvoxuCvdnERU4WGg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+
+<%- include ('components/menu.ejs') %>
+
+<div style="margin-top: 5rem;" class="container mx-auto box-border box-content border">
+    <div class="flex justify-center items-center table-custom" style="padding: 1rem;">
+        <div class="flex items-center space-x-4">
+            <img class="rounded-full h-16 w-16 bg-gray-400" src="<%= avatarFull %>">
+            <div>
+                <h1 class="text-2xl font-bold">Dein aktueller Score</h1>
+                <p class="text-gray-600">Name: <%= username %></p>
+                <p class="text-gray-600">Score: <%= currentScore %></p>
+            </div>
+        </div>
+    </div>
+    <div class="mb-5 mt-5 border shadow-md"></div>
+
+    <h1 style="padding: 1rem; margin-top: 1rem; margin-bottom: 1rem;" class="flex items-center content-center justify-center mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 text-5xl lg:text-6xl dark:text-black">Top Playersscore</h1>
+    <table id="player-table" class="table-custom min-w-full divide-y divide-gray-200 w-full mt-8">
+        <thead>
+        <tr>
+            <th class="text-left py-3 px-6 bg-gray-50 font-bold text-gray-600 uppercase tracking-wider">Rank</th>
+            <th class="text-left py-3 px-6 bg-gray-50 font-bold text-gray-600 uppercase tracking-wider">Name</th>
+            <th class="text-left py-3 px-6 bg-gray-50 font-bold text-gray-600 uppercase tracking-wider">Score</th>
+        </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+        <% players.sort((a, b) => b.score - a.score).forEach((player, index) => { %>
+            <tr>
+                <td class="py-3 px-6"><%= index + 1 %></td>
+                <td class="py-3 px-6"><%= player.name %></td>
+                <td class="py-3 px-6"><%= player.score %></td>
+            </tr>
+        <% }) %>
+        </tbody>
+    </table>
+</div>
+<div class="container mx-auto box-border box-content border mt-4 mb-4 chart-container">
+    <div>
+        <canvas id="myChart"></canvas>
+    </div>
+</div>
+
+
+
+<div class="fixed z-10 inset-0 overflow-y-auto hidden" id="popup">
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="bg-white rounded-lg overflow-hidden shadow-xl p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold">Spieler Informationen</h2>
+                <button class="text-gray-500 hover:text-gray-600 focus:outline-none focus:text-gray-600" onclick="closePopup()">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M10.293 10l4.146-4.146a.5.5 0 11.708.708L11.707 10l3.146 3.146a.5.5 0 01-.708.708L10 10.707l-4.146 4.147a.5.5 0 11-.708-.708L9.293 10 5.147 5.854a.5.5 0 01.708-.708L10 9.293l4.146-4.147a.5.5 0 01.708.708L10.707 10z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+            <div class="flex-grow">
+                <div class="flex items-center">
+                    <img src="<%= avatarFull %>" class="rounded-full mr-4" alt="Profilbild des Spielers">
+                    <div>
+                        <h3 class="text-lg font-bold"><%= username %></h3>
+                        <p class="font-bold">Steam ID:</p><p class="text-gray-600 mb-2"><%= steamID %></p>
+                        <p class="font-bold">Kills:</p><p class="text-gray-600 mb-2"><%= currentKills %></p>
+                        <p class="font-bold">Deaths:</p><p class="text-gray-600 mb-2"><%= currentDeaths %></p>
+                        <p class="font-bold">Suicides:</p><p class="text-gray-600 mb-2"><%= currentSuicides %></p>
+                    </div>
+                </div>
+            </div>
+            <% if (process.env.RESET_ACTIVE === 'true') { %>
+            <button class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-auto" onclick="resetScore()">Score Reset</button>
+            <% }%>
+        </div>
+    </div>
+</div>
+
+<%- include('components/footer.ejs')%>
+<%- include('ejs/indexFunctions.ejs') %>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.umd.js" integrity="sha512-CMF3tQtjOoOJoOKlsS7/2loJlkyctwzSoDK/S40iAB+MqWSaf50uObGQSk5Ny/gfRhRCjNLvoxuCvdnERU4WGg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+</body>
+</html>

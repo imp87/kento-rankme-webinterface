@@ -1,0 +1,90 @@
+/* Globale Styles */
+.fade-in {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+.fade-in.active {
+    opacity: 1;
+}
+#menu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+}
+
+#menu.open {
+    max-height: 500px; /* Erhöhen oder verringern Sie diesen Wert entsprechend der Größe Ihres Menüs */
+    opacity: 1;
+}.menu-collapsed {
+     max-height: 0;
+     opacity: 0;
+     overflow: hidden;
+     transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+ }
+.dataTables_filter input {
+    text-align: center;
+}
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: row;
+    align-items: flex-end;
+}
+.dataTables_paginate .paginate_button {
+    background-color: #f3f3f3;
+    border: 1px solid #ccc;
+    color: #333;
+    padding: 5px 10px;
+    margin: 0 2px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 3px;
+}
+
+.dataTables_paginate .paginate_button:hover {
+    background-color: #e6e6e6;
+}
+
+.dataTables_paginate .paginate_button.current,
+.dataTables_paginate .paginate_button.current:hover {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+#player-table{
+    width: 0!important;
+}
+
+#popup {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* Popup */
+#popup .bg-white {
+    width: 640px;
+    max-height: 90vh;
+}
+
+/* Schließen-Button */
+#popup button:focus {
+    outline: none;
+}
+
+/* Profilbild */
+#popup img {
+    width: 96px;
+    height: 96px;
+}
+
+#myChart{
+    height: 400px;
+}
+
+.table-custom{
+    padding: 1rem!important;
+}
+
+#player-table_wrapper{
+    padding: 1rem;
+}
